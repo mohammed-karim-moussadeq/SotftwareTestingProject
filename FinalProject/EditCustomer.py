@@ -13,6 +13,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 
+# READ_ME: Please fill out your login details and valid sample customer ID before you begin
 
 class Testcases():
     def setup_method(self, method):
@@ -22,330 +23,356 @@ class Testcases():
     def teardown_method(self, method):
         self.driver.quit()
 
+    # Enter Login Details
+    customer_ID = "69201"
+
+    def login(self):
+        # When testing, please use your own login details:
+        username = "mngr619768"
+        password = "mAmapym"
+        self.driver.get("https://demo.guru99.com/V4/index.php")
+        self.driver.set_window_size(1040, 794)
+        self.driver.find_element(By.NAME, "uid").click()
+        self.driver.find_element(By.NAME, "uid").send_keys(username)
+        self.driver.find_element(By.NAME, "password").click()
+        self.driver.find_element(By.NAME, "password").send_keys(password)
+        self.driver.find_element(By.NAME, "btnLogin").click()
+
     #Test case 1(customer id cannot be empty)
     def test_testcase1(self):
         self.driver.get("https://demo.guru99.com/V4/manager/EditCustomer.php")
         self.driver.set_window_size(764, 715)
+        self.login()
+        self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        element = self.driver.find_element(By.CSS_SELECTOR, "td > p:nth-child(2)")
-        actions = ActionChains(self.driver)
-        actions.move_to_element(element).click_and_hold().perform()
-        element = self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(2)")
-        actions = ActionChains(self.driver)
-        actions.move_to_element(element).release().perform()
-        self.driver.find_element(By.CSS_SELECTOR, "tbody:nth-child(2) > tr > td").click()
-        self.driver.find_element(By.NAME, "AccSubmit").click()
-        assert self.driver.switch_to.alert.text == "Please fill all fields"
+        self.driver.find_element(By.NAME, "cusid").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message14"))
+        )
+        expected_message = "Customer ID is required"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     #Test case 2(customer id must be numeric)
     def test_testcase2(self):
         self.driver.get("https://demo.guru99.com/V4/manager/EditCustomer.php")
         self.driver.set_window_size(764, 715)
+        self.login()
+        self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
         self.driver.find_element(By.NAME, "cusid").send_keys("a")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(2)").click()
-        self.driver.find_element(By.NAME, "AccSubmit").click()
-        assert self.driver.switch_to.alert.text == "Please fill all fields"
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message14"))
+        )
+        expected_message = "Characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     #Test case 3(customer id cannot have special character)
     def test_testcase3(self):
         self.driver.get("https://demo.guru99.com/V4/manager/EditCustomer.php")
         self.driver.set_window_size(764, 715)
+        self.login()
+        self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
         self.driver.find_element(By.NAME, "cusid").send_keys("#")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(6) > td:nth-child(2)").click()
-        self.driver.find_element(By.NAME, "AccSubmit").click()
-        assert self.driver.switch_to.alert.text == "Please fill all fields"
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message14"))
+        )
+        expected_message = "Special characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
+
 
     #Test case 4(valid customer id)
-    def test_testcase4(self):
+    def test_testcase4(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/manager/EditCustomer.php")
         self.driver.set_window_size(1040, 794)
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
+        self.driver.find_element(By.NAME, "AccSubmit").click()
+
 
     #Test case 5(address cannot be empty)
-    def test_testcase5(self):
+    def test_testcase5(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "addr").click()
         self.driver.find_element(By.NAME, "addr").clear()
         self.driver.find_element(By.NAME, "addr").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message3"))
+        )
+        expected_message = "Address Field must be blank"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
+
 
     # Test case 6(city cannot be empty)
-    def test_testcase6(self):
+    def test_testcase6(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "city").click()
         self.driver.find_element(By.NAME, "city").clear()
         self.driver.find_element(By.NAME, "city").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message4"))
+        )
+        expected_message = "City Field must not be blank"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 7(city cannot be numberic)
-    def test_testcase7(self):
+    def test_testcase7(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "city").click()
         self.driver.find_element(By.NAME, "city").send_keys("123")
         self.driver.find_element(By.NAME, "city").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message4"))
+        )
+        expected_message = "Numbers are allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 8(city cannot have special character)
-    def test_testcase8(self):
+    def test_testcase8(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "city").click()
         self.driver.find_element(By.NAME, "city").send_keys("!@#")
         self.driver.find_element(By.NAME, "city").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message4"))
+        )
+        expected_message = "Special characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 9(state cannot be empty)
-    def test_testcase9(self):
+    def test_testcase9(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "state").click()
         self.driver.find_element(By.NAME, "state").clear()
         self.driver.find_element(By.NAME, "state").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message5"))
+        )
+        expected_message = "State must be blank"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 10(state cannot be numeric)
-    def test_testcase10(self):
+    def test_testcase10(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "state").click()
         self.driver.find_element(By.NAME, "state").send_keys("123")
         self.driver.find_element(By.NAME, "state").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message5"))
+        )
+        expected_message = "Numbers are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 11(state cannot have special character)
-    def test_testcase11(self):
+    def test_testcase11(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "state").click()
         self.driver.find_element(By.NAME, "state").send_keys("!@#")
         self.driver.find_element(By.NAME, "state").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message5"))
+        )
+        expected_message = "Special characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 12(PIN must be numeric)
-    def test_testcase12(self):
+    def test_testcase12(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "pinno").click()
+        self.driver.find_element(By.NAME, "pinno").clear()
         self.driver.find_element(By.NAME, "pinno").send_keys("ace")
         self.driver.find_element(By.NAME, "pinno").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message6"))
+        )
+        expected_message = "Characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 13(PIN cannot be empty)
-    def test_testcase13(self):
+    def test_testcase13(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "pinno").click()
         self.driver.find_element(By.NAME, "pinno").clear()
         self.driver.find_element(By.NAME, "pinno").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message6"))
+        )
+        expected_message = "PIN Code must not be blank"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 14(PIN must have 6 digits)
-    def test_testcase14(self):
+    def test_testcase14(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "pinno").click()
+        self.driver.find_element(By.NAME, "pinno").clear()
         self.driver.find_element(By.NAME, "pinno").send_keys("123")
         self.driver.find_element(By.NAME, "pinno").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message6"))
+        )
+        expected_message = "PIN Code must have 6 Digits"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 15(PIN cannot have special character)
-    def test_testcase15(self):
+    def test_testcase15(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "pinno").click()
+        self.driver.find_element(By.NAME, "pinno").clear()
         self.driver.find_element(By.NAME, "pinno").send_keys("!@#")
         self.driver.find_element(By.NAME, "pinno").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message6"))
+        )
+        expected_message = "Special characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 16(mobile No. cannot be empty)
-    def test_testcase16(self):
+    def test_testcase16(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "telephoneno").click()
         self.driver.find_element(By.NAME, "telephoneno").clear()
         self.driver.find_element(By.NAME, "telephoneno").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message7"))
+        )
+        expected_message = "Telephone no must not be blank"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 17(mobile No. cannot have special character)
-    def test_testcase17(self):
+    def test_testcase17(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "telephoneno").click()
+        self.driver.find_element(By.NAME, "telephoneno").clear()
         self.driver.find_element(By.NAME, "telephoneno").send_keys("!@#")
         self.driver.find_element(By.NAME, "telephoneno").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message7"))
+        )
+        expected_message = "Special characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 18(email cannot be empty)
-    def test_testcase18(self):
+    def test_testcase18(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "emailid").click()
         self.driver.find_element(By.NAME, "emailid").clear()
         self.driver.find_element(By.NAME, "emailid").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message9"))
+        )
+        expected_message = "Email-ID must not be blank"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 19(email must be in format career@guru99.com)
-    def test_testcase19(self):
+    def test_testcase19(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "emailid").click()
+        self.driver.find_element(By.NAME, "emailid").clear()
         self.driver.find_element(By.NAME, "emailid").send_keys("guru99gmail.com")
         self.driver.find_element(By.NAME, "emailid").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message9"))
+        )
+        expected_message = "Email-ID is not valid"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 20(submit button)
-    def test_testcase20(self):
+    def test_testcase20(self, customerid=customer_ID):
         self.driver.get("https://demo.guru99.com/V4/index.php")
         self.driver.set_window_size(1040, 794)
-        self.driver.find_element(By.NAME, "uid").click()
-        self.driver.find_element(By.NAME, "uid").send_keys("mngr619768")
-        self.driver.find_element(By.NAME, "password").click()
-        self.driver.find_element(By.NAME, "password").send_keys("mAmapym")
-        self.driver.find_element(By.NAME, "btnLogin").click()
+        self.login()
         self.driver.find_element(By.LINK_TEXT, "Edit Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("69201")
-        self.driver.find_element(By.CSS_SELECTOR, "tr:nth-child(11) > td:nth-child(1)").click()
+        self.driver.find_element(By.NAME, "cusid").send_keys(customerid)
         self.driver.find_element(By.NAME, "AccSubmit").click()
         self.driver.find_element(By.NAME, "sub").click()

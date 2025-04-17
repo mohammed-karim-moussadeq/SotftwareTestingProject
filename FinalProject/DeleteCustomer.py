@@ -29,6 +29,11 @@ class Testcases():
         self.driver.find_element(By.LINK_TEXT, "Delete Customer").click()
         self.driver.find_element(By.NAME, "cusid").click()
         self.driver.find_element(By.NAME, "cusid").send_keys(Keys.TAB)
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message14"))
+        )
+        expected_message = "Customer ID can not be blank"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     #Test case 2(customer ID must be numeric)
     def test_testcase2(self):
@@ -36,13 +41,23 @@ class Testcases():
         self.driver.set_window_size(1040, 794)
         self.driver.find_element(By.NAME, "cusid").click()
         self.driver.find_element(By.NAME, "cusid").send_keys("ace")
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message14"))
+        )
+        expected_message = "Characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     #Test case 3(customer ID cannot have special character)
     def test_testcase3(self):
         self.driver.get("https://demo.guru99.com/V4/manager/DeleteCustomerInput.php")
         self.driver.set_window_size(1040, 794)
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("ace")
+        self.driver.find_element(By.NAME, "cusid").send_keys("!@#")
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message14"))
+        )
+        expected_message = "Special characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 4(customer ID cannot have blank space)
     def test_testcase4(self):
@@ -50,13 +65,23 @@ class Testcases():
         self.driver.set_window_size(1040, 794)
         self.driver.find_element(By.NAME, "cusid").click()
         self.driver.find_element(By.NAME, "cusid").send_keys("123 12")
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message14"))
+        )
+        expected_message = "Characters are not allowed"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 5(customer ID first character cannot be space)
     def test_testcase5(self):
         self.driver.get("https://demo.guru99.com/V4/manager/DeleteCustomerInput.php")
         self.driver.set_window_size(1040, 794)
         self.driver.find_element(By.NAME, "cusid").click()
-        self.driver.find_element(By.NAME, "cusid").send_keys("123 12")
+        self.driver.find_element(By.NAME, "cusid").send_keys(" 1232")
+        label = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "message14"))
+        )
+        expected_message = "First character cannot have space"
+        assert label.text == expected_message, f"Expected '{expected_message}' but got '{label.text}'"
 
     # Test case 6(incorrect customer ID)
     def test_testcase6(self):
@@ -65,6 +90,9 @@ class Testcases():
         self.driver.find_element(By.NAME, "cusid").click()
         self.driver.find_element(By.NAME, "cusid").send_keys("123123")
         self.driver.find_element(By.NAME, "AccSubmit").click()
+        assert self.driver.switch_to.alert.text == "Do you really want to delete this Customer?"
+        self.driver.switch_to.alert.accept()
+        #assert self.driver.switch_to.alert.text == "Customer does not exist!!"
 
     # Test case 7(correct customer ID)
     def test_testcase7(self):
@@ -75,6 +103,7 @@ class Testcases():
         self.driver.find_element(By.NAME, "AccSubmit").click()
         assert self.driver.switch_to.alert.text == "Do you really want to delete this Customer?"
         self.driver.switch_to.alert.accept()
+        assert self.driver.switch_to.alert.text == "Customer does not existcould not be deleted!! First delete all accounts of this customer then delete the customer "
 
     # Test case 8(reset button)
     def test_testcase8(self):
@@ -83,3 +112,8 @@ class Testcases():
         self.driver.find_element(By.NAME, "cusid").click()
         self.driver.find_element(By.NAME, "cusid").send_keys("123123")
         self.driver.find_element(By.NAME, "res").click()
+        textbox = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.NAME, "cusid"))
+        )
+        assert textbox.text == ""
+
